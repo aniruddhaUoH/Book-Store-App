@@ -1,0 +1,92 @@
+<app-header [cartFlag]="true"></app-header>
+
+<div class="container-fluid bg-3 text-center" *ngIf="booksDetails; else loading">
+
+  <div>
+    <div class="dropdown" style="display: inline-block; float: left;">
+      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"
+              style="margin-top: 15px; margin-left: 10px;">Sort By
+        <span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a style="cursor: pointer;" (click)="sortByPrice()">Price</a></li>
+        <li><a style="cursor: pointer;" (click)="sortByRatings()">Ratings</a></li>
+        <li><a style="cursor: pointer;" (click)="sortByAuthors()">Authors</a></li>
+      </ul>
+    </div>
+
+    <div style="display: inline-block;">
+      <h3>Books Collection</h3>
+    </div>
+  </div>
+
+  <div class="search" style="margin-top: 10px;">
+    <form class="search-form" style="background: white;" [formGroup]="searchForm" novalidate>
+      <input formControlName="searchText" type="text" placeholder="Search by book, author...">
+      <input type="submit" value="Submit" (click)="searchBooks()" [disabled]="!searchForm.valid" style="padding-right: 15px;">
+    </form>
+  </div>
+
+  <div class="row">
+    <div class="col-md-3" *ngFor="let bookDetails of booksDetails | paginate: { itemsPerPage: 8, currentPage: p }"
+         style="border: 2px solid #6f94d1; height: 190px; margin: 5px; width: 310px; background: cadetblue;">
+      <div class="product-top">
+        <h4 *ngIf="bookDetails.title" style="color: black;">{{bookDetails.title}}</h4>
+        <div class="overlay">
+          <button type="button" (click)="addToCart(bookDetails)" class="btn btn-secondary" title="Add to Cart"><i class="fa fa-shopping-cart"></i></button>
+        </div>
+      </div>
+      <div class="product-bottom text-center">
+        <div>
+          <div style="display: inline-block;">
+            <star-rating [value]="bookDetails.average_rating" checkedcolor="gold" uncheckedcolor="white" size="24px" readonly="true"></star-rating>
+          </div>
+          <div style="display: inline-block;">({{bookDetails.average_rating}})</div>
+        </div>
+        <h5 *ngIf="bookDetails.authors" style="color: aliceblue;">{{bookDetails.authors}}</h5>
+        <h5 *ngIf="bookDetails.price" style="font-weight: bold;">{{bookDetails.price | currency:"₹"}}</h5>
+      </div>
+    </div>
+  </div>
+  <pagination-controls (pageChange)="p = $event"></pagination-controls>
+</div>
+
+<ng-template #loading>
+  <div align="center" style="
+    padding: 25px;
+    font-size: 40px;
+"><i class="fa fa-spinner fa-pulse fa-fw" style=""></i></div>
+</ng-template>
+
+<div class="modal fade method_modal" id="cartDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Cart Details</h4>
+      </div>
+      <div class="modal-body">
+        <p>Books added to the cart for checkout:</p>
+        <div class="table-responsive">
+          <table class="table table_style1 table_accordian">
+            <tbody><tr>
+              <th class="">Book Title</th>
+              <th class="hidden-xs">Authors <br>Name</th>
+              <th class="">Total <br>Amount</th>
+            </tr>
+            <tr *ngFor="let bookDetails of cartItems">
+              <td class="hidden-xs">{{bookDetails.title}}</td>
+              <td class="visible-xs">{{ (bookDetails.title.length>20)? (bookDetails.title | slice:0:20)+'..':(bookDetails.title) }}</td>
+              <td class="hidden-xs">{{bookDetails.authors}}</td>
+              <td>{{bookDetails.price | currency:"₹"}}</td>
+            </tr>
+            </tbody></table>
+
+        </div>
+      </div>
+      <div class="modal-footer text-left">
+        <button type="submit" class="btn btn-primary" data-dismiss="modal">Do Not Proceed</button>
+        <button type="button" (click)="proceedToCheckout()" class="btn btn-default" data-dismiss="modal">Proceed To Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
